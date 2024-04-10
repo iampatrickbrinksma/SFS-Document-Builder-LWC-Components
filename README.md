@@ -7,4 +7,9 @@ IMPORTANT: This code is not intended to be deployed directly to a Salesforce pro
 
 ## Image Gallery
 
-This component is an example simple image gallery which can be used to show images related to the Service Appointment's parent Work Order. 
+This component is an example simple image gallery which can be used to show images related to the Service Appointment's parent Work Order. The component filters out any files that are not images so only images are being displayed. 
+
+You can set the following parameters after dragging the component onto a Document Builder template:
+* Gallery Title - Title that will be displayed above the gallery
+* Number Of Columns - a value between 1 and 12 to define the number of columns the galler will use to display the images
+
