@@ -5,9 +5,14 @@ import { gql, graphql } from "lightning/uiGraphQLApi";
 
 // UI API
 import { getRecord, getRecords } from "lightning/uiRecordApi";
+import { getObjectInfo } from "lightning/uiObjectInfoApi";
 
 // Data model: Service Appointment
+import OBJ_SA from "@salesforce/schema/ServiceAppointment";
 import FLD_SA_PARENTRECORDID from "@salesforce/schema/ServiceAppointment.ParentRecordId";
+
+// Data model: Work Order
+import OBJ_WO from "@salesforce/schema/WorkOrder";
 
 // Data Mode: ContentDocument
 import FLD_CD_ID from '@salesforce/schema/ContentDocument.Id';
@@ -35,8 +40,29 @@ export default class ImgGallery extends LightningElement {
         FLD_CD_VERSIONDATAURL
     ];
 
-    // Work Order Id
-    _parentRecordId;
+    // Object key prefix
+    _saPrefix;
+    get saPrefix(){
+        return this._saPrefix;
+    }
+    set saPrefix( value ){
+        this._saPrefix = value;
+        this.setRecordContext();
+    }
+    
+    _woPrefix;
+    get woPrefix(){
+        return this._woPrefix;
+    }
+    set woPrefix( value ){
+        this._woPrefix = value;
+        this.setRecordContext();
+    }
+
+    // Record Ids
+    _saId;
+    _woId;
+    _linkedEntityId;
 
     // Work Order
     _wo;
@@ -46,22 +72,48 @@ export default class ImgGallery extends LightningElement {
 
     // Content Document Get Records Variables
     _contentDocsGetRecordsVars;
-    
-    constructor(){
-        super();
-        if ( this.numOfColumns < 1 ) {
-            this.numOfColumns = 1;
+
+    setRecordContext(){
+        if ( this.recordId && this.saPrefix && this.woPrefix ) {
+            let idPrefix = this.recordId.substring( 0, 3 );
+            if ( idPrefix === this._saPrefix ) {
+                this._saId = this.recordId;
+            } 
+            else if ( idPrefix === this._woPrefix ) {
+                this._woId = this.recordId;
+            }       
         } 
-        else if ( this.numOfColumns > 12 ) {
-            this.numOfColumns = 12;
-        }
     }
 
-    @wire( getRecord, { recordId: "$recordId", fields: [ FLD_SA_PARENTRECORDID ] } )
+    @wire( getObjectInfo, { objectApiName: OBJ_SA } )
+    getSAObjectInfo( { data, error } ) {
+        console.log( `getSAObjectInfo callback for Object: ${ OBJ_SA.objectApiName }` );
+        if ( data ) {
+            this.saPrefix = data.keyPrefix;
+            console.log( `getSAObjectInfo keyPrefix: ${ this._saPrefix }` );
+        }
+        if ( error ) {
+            console.log( `getSAObjectInfo error: ${ JSON.stringify( error ) }` );            
+        }
+    } 
+    
+    @wire( getObjectInfo, { objectApiName: OBJ_WO } )
+    getWPObjectInfo( { data, error } ) {
+        console.log( `getWPObjectInfo callback for Object: ${ OBJ_WO.objectApiName }` );
+        if ( data ) {
+            this.woPrefix = data.keyPrefix;
+            console.log( `getWPObjectInfo keyPrefix: ${ this._woPrefix }` );
+        }
+        if ( error ) {
+            console.log( `getWPObjectInfo error: ${ JSON.stringify( error ) }` );            
+        }
+    }     
+
+    @wire( getRecord, { recordId: "$_saId", fields: [ FLD_SA_PARENTRECORDID ] } )
     getSARecordResult( { error, data } ){
         if ( data ) {
             console.log( `getSARecordResult data: ${JSON.stringify( data) }` );
-            this._parentRecordId = data.fields.ParentRecordId.value;
+            this._woId = data.fields.ParentRecordId.value;
         }
         if ( error ) {
             console.log( `getSARecordResult error: ${JSON.stringify( error) }` );
@@ -71,7 +123,7 @@ export default class ImgGallery extends LightningElement {
     // Wire for ContentDocuments related to Work Step
     @wire(graphql, { query: '$woFilesQuery', variables: '$woFilesQueryVars' } )
     WOFilesQueryResults( result ) {
-        console.log( `WOFilesQueryResults callback for Work Order Id: ${ this._parentRecordId }` );
+        console.log( `WOFilesQueryResults callback for Work Order Id: ${ this._woId }` );
         const { data, error } = result;
         if ( data ) {
             console.log( `WOFilesQueryResults data retrieved: ${ JSON.stringify( data ) }` );
@@ -94,7 +146,7 @@ export default class ImgGallery extends LightningElement {
 
     // Getter for graphql query to control when the wire is triggered
     get woFilesQuery(){
-        if ( !this._parentRecordId ) return undefined;
+        if ( !this._woId ) return undefined;
         return gql`
             query woFilesQuery( $linkedEntityId: ID = "" ) {
                 uiapi {
@@ -124,7 +176,7 @@ export default class ImgGallery extends LightningElement {
     // Variable for the graphQL query
     get woFilesQueryVars(){
         return {
-            linkedEntityId: this._parentRecordId
+            linkedEntityId: this._woId
         };
     } 
 
