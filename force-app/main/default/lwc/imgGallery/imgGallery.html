@@ -9,16 +9,18 @@
     <template lwc:if={woImages}>
         <div class="slds-grid slds-wrap">
             <template for:each={woImages} for:item="woImage">
-                <div class={imgColClass} key={woImage.Id}>
-                    <div class="imgBox">
-                        <img class="img" src={woImage.VersionDataUrl}>
-                    </div>
-                    <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center">
+                <div key={woImage.Id}>
+                    <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center slds-truncate">
                         {woImage.Title} ({woImage.FileType})
                     </div>
-                    <div class="slds-text-body_small slds-var-p-around_small">
-                        {woImage.Desc}
-                    </div>                
+                    <div class={imgColClass}>
+                        <div class="imgBox">
+                            <img class="img" src={woImage.VersionDataUrl}>
+                        </div>
+                        <div class="slds-text-body_small slds-var-p-around_small">
+                            {woImage.Desc}
+                        </div>                
+                    </div>
                 </div>
             </template>
         </div>
