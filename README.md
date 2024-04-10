@@ -13,3 +13,6 @@ You can set the following parameters after dragging the component onto a Documen
 * Gallery Title - Title that will be displayed above the gallery
 * Number Of Columns - a value between 1 and 12 to define the number of columns the galler will use to display the images
 
+Example result from a Work Order with 4 photos attached:
+
+<img width="474" alt="image" src="https://github.com/iampatrickbrinksma/SFS-Document-Builder-LWC-Components/assets/78381570/29964dfe-21e5-47b6-906d-9f90a3060ce7">
