@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__ServiceDocument</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__ServiceDocument">
+            <supportedFormFactors>
+                <supportedFormFactor type="Large" />
+                <supportedFormFactor type="Small" />
+            </supportedFormFactors> 
+            
+            <property name="recordId" label="Service Appointment Id" type="String" default="" />     
+            <property name="galleryHeading" label="Gallery Title" type="String" default="Yet Another Image Gallery" />     
+            <property name="numOfColumns" label="Number Of Columns (1-12)" type="Integer" default="2" min="1" max="12" required="true" />     
+        </targetConfig>    
+    </targetConfigs>
+</LightningComponentBundle>

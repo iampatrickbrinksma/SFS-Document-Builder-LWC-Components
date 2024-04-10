@@ -1,0 +1,26 @@
+<template>
+    <template lwc:if={galleryHeading}>
+        <div class="slds-var-p-around_small">
+            <span class="galTitle">
+                {galleryHeading}
+            </span>
+        </div>
+    </template>
+    <template lwc:if={woImages}>
+        <div class="slds-grid slds-wrap">
+            <template for:each={woImages} for:item="woImage">
+                <div class={imgColClass} key={woImage.Id}>
+                    <div class="imgBox">
+                        <img class="img" src={woImage.VersionDataUrl}>
+                    </div>
+                    <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center">
+                        {woImage.Title} ({woImage.FileType})
+                    </div>
+                    <div class="slds-text-body_small slds-var-p-around_small">
+                        {woImage.Desc}
+                    </div>                
+                </div>
+            </template>
+        </div>
+    </template>
+</template>
