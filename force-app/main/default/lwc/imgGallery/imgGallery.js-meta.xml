@@ -11,8 +11,6 @@
                 <supportedFormFactor type="Large" />
                 <supportedFormFactor type="Small" />
             </supportedFormFactors> 
-            
-            <property name="recordId" label="Service Appointment Id" type="String" default="" />     
             <property name="galleryHeading" label="Gallery Title" type="String" default="Yet Another Image Gallery" />     
             <property name="numOfColumns" label="Number Of Columns (1-12)" type="Integer" default="2" min="1" max="12" required="true" />     
         </targetConfig>    
