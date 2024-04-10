@@ -15,4 +15,5 @@ You can set the following parameters after dragging the component onto a Documen
 
 Example result from a Work Order with 4 photos attached:
 
-<img width="474" alt="image" src="https://github.com/iampatrickbrinksma/SFS-Document-Builder-LWC-Components/assets/78381570/29964dfe-21e5-47b6-906d-9f90a3060ce7">
+<img width="460" alt="image" src="https://github.com/iampatrickbrinksma/SFS-Document-Builder-LWC-Components/assets/78381570/7352fef0-5a32-4022-85d6-6c1c8870b3a8">
+
