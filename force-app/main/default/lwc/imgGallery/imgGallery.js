@@ -3,167 +3,69 @@ import { LightningElement, api, wire } from 'lwc';
 // GraphQL support
 import { gql, graphql } from "lightning/uiGraphQLApi";
 
-// UI API
-import { getRecord, getRecords } from "lightning/uiRecordApi";
-import { getObjectInfo } from "lightning/uiObjectInfoApi";
-
-// Data model: Service Appointment
-import OBJ_SA from "@salesforce/schema/ServiceAppointment";
-import FLD_SA_PARENTRECORDID from "@salesforce/schema/ServiceAppointment.ParentRecordId";
-
-// Data model: Work Order
-import OBJ_WO from "@salesforce/schema/WorkOrder";
-
-// Data Mode: ContentDocument
-import FLD_CD_ID from '@salesforce/schema/ContentDocument.Id';
-import FLD_CD_FILETYPE from '@salesforce/schema/ContentDocument.FileType';
-import FLD_CD_TITLE from '@salesforce/schema/ContentDocument.LatestPublishedVersion.Title';
-import FLD_CD_DESC from '@salesforce/schema/ContentDocument.LatestPublishedVersion.Description';
-import FLD_CD_VERSIONDATAURL from '@salesforce/schema/ContentDocument.LatestPublishedVersion.VersionDataUrl';
-
-
 export default class ImgGallery extends LightningElement {
 
-    @api recordId;
+    @api 
+    get recordId() {
+        return this._recordId;
+    }
+    set recordId( value ) {
+        console.log( `Setter for recordId with value ${ value }` );
+        this._recordId = value;
+        if ( this.getFilesFromParent && this._recordId.substring( 0, 3 ) === '08p' ) {
+            this._saId = this._recordId;
+            this._recordId = undefined;
+        }
+
+    }
+    @api getFilesFromParent;
     @api galleryHeading;
     @api numOfColumns;
 
-    // Work Order Images
-    woImages;
+    // Images
+    images = [];
 
-    // Object fields;
-    _contentDocumentFields = [
-        FLD_CD_ID,
-        FLD_CD_TITLE,
-        FLD_CD_DESC,
-        FLD_CD_FILETYPE,
-        FLD_CD_VERSIONDATAURL
-    ];
+    // Record Id
+    _recordId;
 
-    // Object key prefix
-    _saPrefix;
-    get saPrefix(){
-        return this._saPrefix;
-    }
-    set saPrefix( value ){
-        this._saPrefix = value;
-        this.setRecordContext();
-    }
-    
-    _woPrefix;
-    get woPrefix(){
-        return this._woPrefix;
-    }
-    set woPrefix( value ){
-        this._woPrefix = value;
-        this.setRecordContext();
-    }
-
-    // Record Ids
+    // SA Record Id
     _saId;
-    _woId;
-    _linkedEntityId;
-
-    // Work Order
-    _wo;
 
     // Content Document Ids
     _contDocIds;
 
-    // Content Document Get Records Variables
-    _contentDocsGetRecordsVars;
+    // Indicator to get parent record (context: when SA record is used as basis of Service Document, files will be associated to parent record)
+    _getParent = false;
 
-    setRecordContext(){
-        if ( this.recordId && this.saPrefix && this.woPrefix ) {
-            let idPrefix = this.recordId.substring( 0, 3 );
-            if ( idPrefix === this._saPrefix ) {
-                this._saId = this.recordId;
-            } 
-            else if ( idPrefix === this._woPrefix ) {
-                this._woId = this.recordId;
-            }       
-        } 
-    }
-
-    @wire( getObjectInfo, { objectApiName: OBJ_SA } )
-    getSAObjectInfo( { data, error } ) {
-        console.log( `getSAObjectInfo callback for Object: ${ OBJ_SA.objectApiName }` );
-        if ( data ) {
-            this.saPrefix = data.keyPrefix;
-            console.log( `getSAObjectInfo keyPrefix: ${ this._saPrefix }` );
-        }
-        if ( error ) {
-            console.log( `getSAObjectInfo error: ${ JSON.stringify( error ) }` );            
-        }
-    } 
-    
-    @wire( getObjectInfo, { objectApiName: OBJ_WO } )
-    getWPObjectInfo( { data, error } ) {
-        console.log( `getWPObjectInfo callback for Object: ${ OBJ_WO.objectApiName }` );
-        if ( data ) {
-            this.woPrefix = data.keyPrefix;
-            console.log( `getWPObjectInfo keyPrefix: ${ this._woPrefix }` );
-        }
-        if ( error ) {
-            console.log( `getWPObjectInfo error: ${ JSON.stringify( error ) }` );            
-        }
-    }     
-
-    @wire( getRecord, { recordId: "$_saId", fields: [ FLD_SA_PARENTRECORDID ] } )
-    getSARecordResult( { error, data } ){
-        if ( data ) {
-            console.log( `getSARecordResult data: ${JSON.stringify( data) }` );
-            this._woId = data.fields.ParentRecordId.value;
-        }
-        if ( error ) {
-            console.log( `getSARecordResult error: ${JSON.stringify( error) }` );
-        }
-    }
-
-    // Wire for ContentDocuments related to Work Step
-    @wire(graphql, { query: '$woFilesQuery', variables: '$woFilesQueryVars' } )
-    WOFilesQueryResults( result ) {
-        console.log( `WOFilesQueryResults callback for Work Order Id: ${ this._woId }` );
+    // Wire for Service Appointment
+    @wire(graphql, { query: '$serviceAppointmentQuery', variables: '$serviceAppointmentQueryVars' } )
+    serviceAppointmentQueryResults( result ) {
+        console.log( `serviceAppointmentQueryResults callback for record Id: ${ this._saId }` );
         const { data, error } = result;
         if ( data ) {
-            console.log( `WOFilesQueryResults data retrieved: ${ JSON.stringify( data ) }` );
-            this._contDocLinks = data.uiapi.query.ContentDocumentLink.edges.map( ( edge ) => edge.node );
-            let contDocIds = [];
-            this._contDocLinks.forEach( ( contDocLink ) => {
-                if ( contDocLink.ContentDocument?.Id ){
-                    contDocIds.push( contDocLink.ContentDocument.Id );
-                } 
-            } );
-            this._contDocIds = contDocIds;
-            if ( contDocIds.length > 0 ) {
-                this._contentDocsGetRecordsVars = [ { recordIds: this._contDocIds, fields: this._contentDocumentFields } ];
-            }                
+            console.log( `serviceAppointmentQueryResults data retrieved: ${ JSON.stringify( data ) }` );
+            let sas = data.uiapi.query.ServiceAppointment.edges.map( ( edge ) => edge.node );
+            this._recordId = sas?.ParentRecordId?.value;
         }
         if ( error ) {
-            console.log( `WOFilesQueryResults Error: ${ JSON.stringify( error ) }` );            
+            console.log( `serviceAppointmentQueryResults Error: ${ JSON.stringify( error ) }` );            
         }
     }
 
     // Getter for graphql query to control when the wire is triggered
-    get woFilesQuery(){
-        if ( !this._woId ) return undefined;
+    get serviceAppointmentQuery(){
+        if ( !this._saId ) return undefined;
         return gql`
-            query woFilesQuery( $linkedEntityId: ID = "" ) {
+            query serviceAppointment( $recordId: ID = "" ) {
                 uiapi {
                     query {
-                        ContentDocumentLink(
-                            where: { LinkedEntityId: { eq: $linkedEntityId } }
-                            first: 2000
+                        ServiceAppointment (
+                            where: { Id: { eq: $recordId } }
                         ) {
                             edges {
                                 node {
                                     Id
-                                    ContentDocument {
-                                        Id
-                                        LatestPublishedVersion {
-                                            Id
-                                        }
-                                    }
+                                    ParentRecordId { value }
                                 }
                             }
                         }
@@ -174,54 +76,133 @@ export default class ImgGallery extends LightningElement {
     }    
 
     // Variable for the graphQL query
-    get woFilesQueryVars(){
+    get serviceAppointmentQueryVars(){
         return {
-            linkedEntityId: this._woId
+            recordId: this._saId
+        };
+    }     
+
+    // Wire for ContentDocuments related to recordId
+    @wire(graphql, { query: '$contentDocumentLinkQuery', variables: '$contentDocumentLinkQueryVars' } )
+    contentDocumentLinkQueryResults( result ) {
+        console.log( `contentDocumentLinkQueryResults callback for record Id: ${ this.recordId }` );
+        const { data, error } = result;
+        if ( data ) {
+            console.log( `contentDocumentLinkQueryResults data retrieved: ${ JSON.stringify( data ) }` );
+            let contDocLinks = data.uiapi.query.ContentDocumentLink.edges.map( ( edge ) => edge.node );
+            let contDocIds = [];
+            contDocLinks.forEach( ( contDocLink ) => {
+                if ( contDocLink?.ContentDocumentId ){
+                    contDocIds.push( contDocLink.ContentDocumentId.value );
+                } 
+            } );
+            this._contDocIds = contDocIds;
+        }
+        if ( error ) {
+            console.log( `contentDocumentLinkQueryResults Error: ${ JSON.stringify( error ) }` );            
+        }
+    }
+
+    // Getter for graphql query to control when the wire is triggered
+    get contentDocumentLinkQuery(){
+        if ( !this.recordId ) return undefined;
+        return gql`
+            query contentDocumentLink( $linkedEntityId: ID = "" ) {
+                uiapi {
+                    query {
+                        ContentDocumentLink(
+                            where: { LinkedEntityId: { eq: $linkedEntityId } }
+                            first: 2000
+                        ) {
+                            edges {
+                                node {
+                                    Id
+                                    ContentDocumentId { value }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        `;
+    }    
+
+    // Variable for the graphQL query
+    get contentDocumentLinkQueryVars(){
+        return {
+            linkedEntityId: this._recordId
         };
     } 
 
-    // Get Content Document Records
-    @wire( getRecords, { records: "$_contentDocsGetRecordsVars" } )
-    contentDocumentsResult( { data, error } ) {
-        console.log( `contentDocumentsResult callback for Id: ${ JSON.stringify( this._contDocIds ) }` );
+    // Wire for ContentVersions related to the ContentDocuments
+    @wire(graphql, { query: '$contentVersionQuery', variables: '$contentVersionQueryVars' } )
+    contentVersionQueryResults( result ) {
+        console.log( `contentVersionQueryResults callback for record Ids: ${ JSON.stringify( this._contDocIds ) }` );
+        const { data, error } = result;
         if ( data ) {
-            console.log( `contentDocumentsResult data retrieved: ${ JSON.stringify( data ) }` );
-            let woImgs = [];
-            data.results.map( ( result ) => {
-                let fileType = result.result.fields.FileType.value.toLowerCase();
-                if ( fileType.match(/(jpg|jpeg|png|gif)$/i) ) {
-                    woImgs.push(
-                        { 
-                            Id: result.result.id, 
-                            Title: result.result.fields.LatestPublishedVersion.value.fields.Title.value,
-                            Desc: result.result.fields.LatestPublishedVersion.value.fields.Description.value,
-                            FileType: fileType,
-                            VersionDataUrl: result.result.fields.LatestPublishedVersion.value.fields.VersionDataUrl.value 
-                        } 
-                    );
-                }
-            });
-            this.woImages = woImgs;
-            console.log( `contentDocumentsResult woImages: ${ JSON.stringify( this.woImages ) }` );
+            console.log( `contentVersionQueryResults data retrieved: ${ JSON.stringify( data ) }` );
+            const contVers = data.uiapi.query.ContentVersion.edges.map( ( edge ) => edge.node );
+            const imgs = [];
+            contVers.forEach( ( contVer ) => {
+                imgs.push(
+                    { 
+                        Id: contVer.id, 
+                        Title: contVer.Title.value,
+                        Desc: contVer.Description.value,
+                        FileType: contVer.FileType.value,
+                        VersionDataUrl: contVer.VersionDataUrl.value 
+                    } 
+                );                
+            } );
+            this.images = imgs;
         }
         if ( error ) {
-            // TODO: Error to screen
-            console.log( `contentDocumentsResult Error: ${ JSON.stringify( error ) }` );                    
+            console.log( `contentVersionQueryResults Error: ${ JSON.stringify( error ) }` );            
         }
-    }      
+    }
 
+    // Getter for graphql query to control when the wire is triggered
+    get contentVersionQuery(){
+        if ( !this._contDocIds ) return undefined;
+        return gql`
+            query contentVersion( $recordIds: [ID] = [""], $fileTypes: [String] = [""] ) {
+                uiapi {
+                    query {
+                        ContentVersion (
+                            where: { 
+                                ContentDocumentId: { in: $recordIds }, 
+                                FileType: { in: $fileTypes } 
+                            }
+                            first: 2000,
+                            orderBy: { CreatedDate: { order: DESC } }
+                        ) {
+                            edges {
+                                node {
+                                    Id
+                                    Title { value }
+                                    Description { value }
+                                    FileType { value }
+                                    VersionDataUrl { value }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        `;
+    }    
+
+    // Variable for the graphQL query
+    get contentVersionQueryVars(){
+        return {
+            recordIds: this._contDocIds,
+            fileTypes: ["JPG","JPEG","PNG","GIF"]
+        };
+    }  
+
+    // Grid class for image determined by nr of columns set
     get imgColClass(){
-        return `slds-col slds-size_1-of-${this.numOfColumns} slds-var-p-around_small`;
+        return `slds-col slds-col_bump-top slds-size_1-of-${this.numOfColumns} slds-var-p-around_small`;
     }
-
-    // Get fields from object Info
-    objectFields( objectFields, objectType ) {
-        let keys = Object.keys( objectFields );
-        let fields = keys.map( ( f ) => {
-            return `${ objectType }.${ f }`;
-        });
-        return fields;
-    }
-
 
 }
