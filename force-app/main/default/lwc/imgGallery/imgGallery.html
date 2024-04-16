@@ -6,18 +6,18 @@
             </span>
         </div>
     </template>
-    <template lwc:if={woImages}>
-        <div class="slds-grid slds-wrap">
-            <template for:each={woImages} for:item="woImage">
-                <div class={imgColClass} key={woImage.Id}>
+    <template lwc:if={images}>
+        <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-grid_vertical-stretch slds-wrap">
+            <template for:each={images} for:item="image">
+                <div class={imgColClass} key={image.Id}>
                     <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center slds-truncate">
-                        {woImage.Title} ({woImage.FileType})
+                        {image.Title} ({image.FileType})
                     </div>
                     <div class="imgBox">
-                        <img class="img" src={woImage.VersionDataUrl}>
+                        <img class="img" src={image.VersionDataUrl}>
                     </div>
                     <div class="slds-text-body_small slds-var-p-around_small">
-                        {woImage.Desc}
+                        {image.Desc}
                     </div>                
                 </div>
             </template>
