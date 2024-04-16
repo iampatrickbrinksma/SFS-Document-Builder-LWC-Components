@@ -5,28 +5,40 @@ import { gql, graphql } from "lightning/uiGraphQLApi";
 
 export default class ImgGallery extends LightningElement {
 
+    // The record id will be dependent on the base object of the Document Builder Template
+    // If it's a Service Appointment, and the getFilesFromParent is true, get the parent record first
     @api 
     get recordId() {
         return this._recordId;
     }
     set recordId( value ) {
-        console.log( `Setter for recordId with value ${ value }` );
         this._recordId = value;
         if ( this.getFilesFromParent && this._recordId.substring( 0, 3 ) === '08p' ) {
             this._saId = this._recordId;
             this._recordId = undefined;
         }
-
     }
-    @api getFilesFromParent;
+
+    // Configurable at Document Builder Template level
     @api galleryHeading;
+    @api getFilesFromParent;
     @api numOfColumns;
+    @api 
+    get cellAlignment() {
+        return this._cellAlignment;
+    }
+    set cellAlignment( value ) {
+        this._cellAlignment = value.toLowerCase();
+    }
 
     // Images
     images = [];
 
     // Record Id
     _recordId;
+
+    // Cell alignment
+    _cellAlignment;
 
     // SA Record Id
     _saId;
@@ -202,7 +214,7 @@ export default class ImgGallery extends LightningElement {
 
     // Grid class for image determined by nr of columns set
     get imgColClass(){
-        return `slds-col slds-col_bump-top slds-size_1-of-${this.numOfColumns} slds-var-p-around_small`;
+        return `slds-col slds-col_bump-${this._cellAlignment} slds-size_1-of-${this.numOfColumns} slds-var-p-around_small`;
     }
 
 }
