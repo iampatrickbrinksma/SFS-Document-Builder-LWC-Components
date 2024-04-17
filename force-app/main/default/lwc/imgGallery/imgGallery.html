@@ -13,12 +13,12 @@
                     <template for:each={row.imgs} for:item="image">
                         <div class={image.colCss} key={image.Id}>
                             <template lwc:if={showImgTitle}>
-                                <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center slds-truncate">
+                                <div class="slds-text-body_small slds-text-align_center slds-truncate slds-var-p-around_small">
                                     {image.Title}
                                 </div>
                             </template>
                             <div>
-                                <img class="img" src={image.VersionDataUrl}>
+                                <img src={image.VersionDataUrl}>
                             </div>
                             <template lwc:if={showImgDesc}>
                                 <div class="slds-text-body_small slds-var-p-around_small">
