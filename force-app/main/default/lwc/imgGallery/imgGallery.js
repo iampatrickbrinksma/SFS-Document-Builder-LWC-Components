@@ -238,8 +238,8 @@ export default class ImgGallery extends LightningElement {
             let curRow = 1;
             let imgs = [];
             for ( let i = 0; i < this._images.length; i++ ) {
-                if ( curCol <= this.numOfColumns ) {
-                    imgs.push( this._images[ i ] );
+                imgs.push( this._images[ i ] );
+                if ( curCol < this.numOfColumns ) {
                     curCol++;
                 }
                 else {
@@ -249,7 +249,7 @@ export default class ImgGallery extends LightningElement {
                             imgs: imgs
                         }
                     );
-                    curCol = 0;
+                    curCol = 1;
                     curRow++;
                     imgs = [];
                 }
