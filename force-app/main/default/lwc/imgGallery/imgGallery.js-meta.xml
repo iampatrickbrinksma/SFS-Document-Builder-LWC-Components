@@ -24,6 +24,18 @@
                 type="Boolean" 
                 default="false" />
             <property 
+                name="showImgTitle" 
+                label="Show Image Title"
+                description="Shows the title of the image positioned above the image." 
+                type="Boolean" 
+                default="true" />    
+                <property 
+                name="showImgDesc" 
+                label="Show Image Description"
+                description="Shows the description of the image positioned below the image." 
+                type="Boolean" 
+                default="true" />                             
+            <property 
                 name="numOfColumns" 
                 label="Number Of Columns (1-12)"
                 description="Number of columns used in the image gallery." 
@@ -38,7 +50,8 @@
                 description="Alignment of the individual cells of the grid."
                 type="String" 
                 datasource="Top,Bottom" 
-                default="Top" />     
+                default="Bottom"
+                required="true" />     
         </targetConfig>    
     </targetConfigs>
 </LightningComponentBundle>

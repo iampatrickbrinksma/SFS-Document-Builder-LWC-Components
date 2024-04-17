@@ -22,6 +22,8 @@ export default class ImgGallery extends LightningElement {
     // Configurable at Document Builder Template level
     @api galleryHeading;
     @api getFilesFromParent;
+    @api showImgTitle;
+    @api showImgDesc;
     @api numOfColumns;
     @api 
     get cellAlignment() {
@@ -38,7 +40,7 @@ export default class ImgGallery extends LightningElement {
     _recordId;
 
     // Cell alignment
-    _cellAlignment;
+    _cellAlignment = 'top';
 
     // SA Record Id
     _saId;
@@ -212,9 +214,13 @@ export default class ImgGallery extends LightningElement {
         };
     }  
 
+    get gridCellBump(){
+        return this._cellAlignment === 'bottom' ? 'top' : 'bottom';
+    }
+
     // Grid class for image determined by nr of columns set
     get imgColClass(){
-        return `slds-col slds-col_bump-${this._cellAlignment} slds-size_1-of-${this.numOfColumns} slds-var-p-around_small`;
+        return `slds-col slds-col_bump-${this.gridCellBump} slds-size_1-of-${this.numOfColumns} slds-var-p-around_small`;
     }
 
 }

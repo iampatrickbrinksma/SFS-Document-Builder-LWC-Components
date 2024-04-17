@@ -10,15 +10,19 @@
         <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-grid_vertical-stretch slds-wrap">
             <template for:each={images} for:item="image">
                 <div class={imgColClass} key={image.Id}>
-                    <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center slds-truncate">
-                        {image.Title} ({image.FileType})
-                    </div>
+                    <template lwc:if={showImgTitle}>
+                        <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center slds-truncate">
+                            {image.Title}
+                        </div>
+                    </template>
                     <div class="imgBox">
                         <img class="img" src={image.VersionDataUrl}>
                     </div>
-                    <div class="slds-text-body_small slds-var-p-around_small">
-                        {image.Desc}
-                    </div>                
+                    <template lwc:if={showImgDesc}>
+                        <div class="slds-text-body_small slds-var-p-around_small">
+                            {image.Desc}
+                        </div>                
+                    </template>
                 </div>
             </template>
         </div>
