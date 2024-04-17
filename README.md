@@ -10,8 +10,10 @@ IMPORTANT: This code is not intended to be deployed directly to a Salesforce pro
 This component is an example simple image gallery which can be used to show images related to the Service Appointment's parent Work Order. The component filters out any files that are not images so only images are being displayed. 
 
 You can set the following parameters after dragging the component onto a Document Builder template:
-* Gallery Title - Title that will be displayed above the gallery
-* Number Of Columns - a value between 1 and 12 to define the number of columns the galler will use to display the images
+* Gallery Title - Title shown at the top of the image gallery. Leave empty to not show a title.
+* Show Parent Record Images - If the template is based on the Service Appointment object, this will show the images related to the parent record.
+* Number Of Columns (1-12) - Number of columns used in the image gallery.
+* Grid Cell Alignment - Alignment of the individual cells of the grid.
 
 Example result from a Work Order with 4 photos attached:
 
