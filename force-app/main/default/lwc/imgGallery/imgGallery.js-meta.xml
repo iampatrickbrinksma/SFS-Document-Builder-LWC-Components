@@ -23,6 +23,12 @@
                 description="If the template is based on the Service Appointment object, this will show the images related to the parent record."
                 type="Boolean" 
                 default="false" />
+                <property 
+                name="showLatestImageVersion" 
+                label="Show Latest Image Version" 
+                description="If a file has multiple versions (ContentVersion), only show the latest version."
+                type="Boolean" 
+                default="true" />                
             <property 
                 name="showImgTitle" 
                 label="Show Image Title"

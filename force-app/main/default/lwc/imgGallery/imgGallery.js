@@ -19,6 +19,7 @@ export default class ImgGallery extends LightningElement {
     // Configurable at Document Builder Template level
     @api galleryHeading;
     @api getFilesFromParent;
+    @api showLatestImageVersion;
     @api showImgTitle;
     @api showImgDesc;
     @api numOfColumns;
@@ -159,17 +160,21 @@ export default class ImgGallery extends LightningElement {
             this.log( `contentVersionQueryResults data retrieved: ${ JSON.stringify( data ) }` );
             const contVers = data.uiapi.query.ContentVersion.edges.map( ( edge ) => edge.node );
             const imgs = [];
+            const contDocIds = [];
             contVers.forEach( ( contVer ) => {
-                imgs.push(
-                    { 
-                        Id: contVer.id, 
-                        Title: contVer.Title.value,
-                        Desc: contVer.Description.value,
-                        FileType: contVer.FileType.value,
-                        VersionDataUrl: contVer.VersionDataUrl.value + "?thumb=THUMB720BY480",
-                        colCss: this.imgColClass
-                    } 
-                );                
+                if ( !contDocIds.includes( contVer.ContentDocumentId.value ) ) {
+                    imgs.push(
+                        { 
+                            Id: contVer.id, 
+                            Title: contVer.Title.value,
+                            Desc: contVer.Description.value,
+                            FileType: contVer.FileType.value,
+                            VersionDataUrl: contVer.VersionDataUrl.value + "?thumb=THUMB720BY480",
+                            colCss: this.imgColClass
+                        } 
+                    );   
+                    if ( this.showLatestImageVersion ) contDocIds.push( contVer.ContentDocumentId.value ); 
+                }            
             } );
             this._images = imgs;
 
@@ -202,6 +207,7 @@ export default class ImgGallery extends LightningElement {
                                     Description { value }
                                     FileType { value }
                                     VersionDataUrl { value }
+                                    ContentDocumentId { value }
                                 }
                             }
                         }
