@@ -6,22 +6,26 @@
             </span>
         </div>
     </template>
-    <template lwc:if={images}>
-        <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center slds-grid_vertical-stretch slds-wrap">
-            <template for:each={images} for:item="image">
-                <div class={imgColClass} key={image.Id}>
-                    <template lwc:if={showImgTitle}>
-                        <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center slds-truncate">
-                            {image.Title}
+    <template lwc:if={renderImgs}>
+        <div class="slds-grid slds-grid_vertical">
+            <template for:each={imgData} for:item="row">
+                <div class="slds-grid slds-gutters slds-wrap" key={row.Id}>
+                    <template for:each={row.imgs} for:item="image">
+                        <div class={image.colCss} key={image.Id}>
+                            <template lwc:if={showImgTitle}>
+                                <div class="slds-text-body_small slds-var-p-around_small slds-text-align_center slds-truncate">
+                                    {image.Title}
+                                </div>
+                            </template>
+                            <div>
+                                <img class="img" src={image.VersionDataUrl}>
+                            </div>
+                            <template lwc:if={showImgDesc}>
+                                <div class="slds-text-body_small slds-var-p-around_small">
+                                    {image.Desc}
+                                </div>                
+                            </template>
                         </div>
-                    </template>
-                    <div class="imgBox">
-                        <img class="img" src={image.VersionDataUrl}>
-                    </div>
-                    <template lwc:if={showImgDesc}>
-                        <div class="slds-text-body_small slds-var-p-around_small">
-                            {image.Desc}
-                        </div>                
                     </template>
                 </div>
             </template>
