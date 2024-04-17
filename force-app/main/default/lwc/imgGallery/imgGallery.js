@@ -237,7 +237,7 @@ export default class ImgGallery extends LightningElement {
             let curCol = 1;
             let curRow = 1;
             let imgs = [];
-            for ( let i = 0; i < this.images.length; i++ ) {
+            for ( let i = 0; i < this._images.length; i++ ) {
                 if ( curCol <= this.numOfColumns ) {
                     imgs.push( this.images[ i ] );
                     curCol++;
