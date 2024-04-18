@@ -40,7 +40,14 @@
                 label="Show Image Description"
                 description="Shows the description of the image positioned below the image." 
                 type="Boolean" 
-                default="true" />                             
+                default="true" /> 
+            <property 
+                name="thumbSize" 
+                label="Image Thumbnail Size"
+                description="Select the thumbnail size of the image." 
+                type="String" 
+                datasource="Full Size,Large,Medium,Small"
+                default="Large" />                                             
             <property 
                 name="numOfColumns" 
                 label="Number Of Columns (1-12)"

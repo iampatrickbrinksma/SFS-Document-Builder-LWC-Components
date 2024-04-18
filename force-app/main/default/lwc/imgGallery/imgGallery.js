@@ -22,6 +22,7 @@ export default class ImgGallery extends LightningElement {
     @api showLatestImageVersion;
     @api showImgTitle;
     @api showImgDesc;
+    @api thumbSize = 'Large';
     @api numOfColumns;
     @api 
     get cellAlignment() {
@@ -48,6 +49,13 @@ export default class ImgGallery extends LightningElement {
 
     // Content Document Ids
     _contDocIds;
+
+    // Thumbnail sizes
+    _thumbSizes = [
+        { name: "Small", syntax: "THUMB120BY90" },
+        { name: "Medium", syntax: "THUMB240BY180" },
+        { name: "Large", syntax: "THUMB720BY480" },
+    ];
 
     // Log info to console?
     _debug = true;
@@ -169,7 +177,7 @@ export default class ImgGallery extends LightningElement {
                             Title: contVer.Title.value,
                             Desc: contVer.Description.value,
                             FileType: contVer.FileType.value,
-                            VersionDataUrl: contVer.VersionDataUrl.value + "?thumb=THUMB720BY480",
+                            VersionDataUrl: contVer.VersionDataUrl.value + this.imgThumbSize,
                             colCss: this.imgColClass
                         } 
                     );   
@@ -225,6 +233,12 @@ export default class ImgGallery extends LightningElement {
         };
     }  
 
+    // Get thumbnail size syntax
+    get imgThumbSize() {
+        if ( this.thumbSize === "Full Size" ) return "";
+        const thumb = this._thumbSizes.find( ( thumb ) => thumb.name === this.thumbSize );
+        return "?thumb=" + thumb.syntax;
+    }
 
     // CSS class bumps cell so alignment is the invert of that
     get gridCellBump(){
