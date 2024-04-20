@@ -9,21 +9,15 @@
     <template lwc:if={renderImgs}>
         <div class="slds-grid slds-grid_vertical">
             <template for:each={imgData} for:item="row">
-                <div class="slds-grid slds-gutters slds-wrap" key={row.Id}>
+                <div class="slds-grid slds-gutters slds-var-p-around_x-small" key={row.Id}>
                     <template for:each={row.imgs} for:item="image">
                         <div class={image.colCss} key={image.Id}>
+                            <img src={image.VersionDataUrl}>
                             <template lwc:if={showImgTitle}>
-                                <div class="slds-text-body_small slds-text-align_center slds-truncate slds-var-p-around_small">
-                                    {image.Title}
-                                </div>
+                                <p>{image.Title}</p>
                             </template>
-                            <div class="slds-align_absolute-center">
-                                <img src={image.VersionDataUrl}>
-                            </div>
                             <template lwc:if={showImgDesc}>
-                                <div class="slds-text-body_small slds-var-p-around_small">
-                                    {image.Desc}
-                                </div>                
+                                <p>{image.Desc}</p>                
                             </template>
                         </div>
                     </template>

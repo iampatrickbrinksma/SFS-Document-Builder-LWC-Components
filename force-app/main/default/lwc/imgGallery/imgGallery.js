@@ -247,7 +247,7 @@ export default class ImgGallery extends LightningElement {
 
     // Grid class for image determined by nr of columns set
     get imgColClass(){
-        return `slds-col slds-col_bump-${this.gridCellBump} slds-size_1-of-${this.numOfColumns}`;
+        return `slds-col slds-size_1-of-${this.numOfColumns} slds-col_bump-${this.gridCellBump}`;
     }
 
     // Return images in consumable format for template

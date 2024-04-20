@@ -13,10 +13,13 @@ You can set the following parameters after dragging the component onto a Documen
 * Gallery Title - Title shown at the top of the image gallery. Leave empty to not show a title.
 * Show Parent Record Images - If the template is based on the Service Appointment object, this will show the images related to the parent record.
 * Show Latest Image Version - If a file has multiple versions (ContentVersion), only show the latest version.
-* Show Image Title - Shows the title of the image positioned above the image.
-* Show Image Description - Shows the description of the image positioned below the image.
+* Show Image Title - Shows the title of the image positioned beneath the image.
+* Show Image Description - Shows the description of the image positioned beneath the image.
+* Image Thumbnail Size - Select the thumbnail size of the image or select Full Size for the full image.
 * Number Of Columns (1-12) - Number of columns used in the image gallery.
 * Grid Cell Alignment - Alignment of the individual cells of the grid.
+
+Note: The rendering of the image gallery in a service document might not be perfect. For example, the title and description are shown beneath the image otherwise rendering was not correct when in landscape mode. It's important to test rendering of the image gallery with a number of variations to test the rendering result.
 
 Example result from a Work Order with 4 photos attached:
 

@@ -32,7 +32,7 @@
             <property 
                 name="showImgTitle" 
                 label="Show Image Title"
-                description="Shows the title of the image positioned above the image." 
+                description="Shows the title of the image positioned below the image." 
                 type="Boolean" 
                 default="true" />    
                 <property 
@@ -44,7 +44,7 @@
             <property 
                 name="thumbSize" 
                 label="Image Thumbnail Size"
-                description="Select the thumbnail size of the image." 
+                description="Select the thumbnail size of the image or select Full Size for the full image." 
                 type="String" 
                 datasource="Full Size,Large,Medium,Small"
                 default="Large" />                                             
