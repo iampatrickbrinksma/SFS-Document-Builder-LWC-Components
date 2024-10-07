@@ -3,7 +3,17 @@
 This repository contains example LWC components that can be used in the Salesforce Field Service Document Builder templates. Please review the [official Salesforce documentation](https://developer.salesforce.com/docs/atlas.en-us.field_service_dev.meta/field_service_dev/fsl_dev_mobile_document_builder.htm) before reviewing and using these components, and the [documentation on how to create and edit Document Builder Templates](https://help.salesforce.com/s/articleView?id=sf.fs_document_builder_about.htm&type=5) etc.
 
 ## Disclaimer
-IMPORTANT: This code is not intended to be deployed directly to a Salesforce production environment, but to be used as an example. This is not a Salesforce product and is not officially supported by Salesforce.
+This repository contains code intended to help Salesforce Field Service customers and partners accelerate their implementations. Please note the following:
+* This code is not an official Salesforce product.
+* It is not officially supported by Salesforce.
+* The code serves as an example of how to implement specific functionality or make use of certain features.
+
+Before using this code in a production environment, it is crucial that you:
+* Adopt the code to fit your specific needs.
+* Test thoroughly to ensure it works as expected in your environment.
+* Consider the code to be your own and take full responsibility for its use.
+
+By using this code, you acknowledge that Salesforce is not liable for any issues that may arise from its use.
 
 ## Image Gallery
 
