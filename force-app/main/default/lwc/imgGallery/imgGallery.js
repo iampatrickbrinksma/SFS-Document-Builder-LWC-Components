@@ -1,20 +1,9 @@
-import { LightningElement, api, wire } from 'lwc';
+import { LightningElement, api, wire, track } from 'lwc';
 import { gql, graphql } from "lightning/uiGraphQLApi";
 
 export default class ImgGallery extends LightningElement {
-    // The record id will be dependent on the base object of the Document Builder Template
-    // If it's a Service Appointment, and the getFilesFromParent is true, get the parent record first
-    @api 
-    get recordId() {
-        return this._recordId;
-    }
-    set recordId( value ) {
-        this._recordId = value;
-        if ( this.getFilesFromParent && this._recordId.substring( 0, 3 ) === '08p' ) {
-            this._saId = this._recordId;
-            this._recordId = undefined;
-        }
-    }
+    // Record Id of the Document Builder Template Object
+    @api recordId;
 
     // Configurable at Document Builder Template level
     @api galleryHeading;
@@ -32,17 +21,14 @@ export default class ImgGallery extends LightningElement {
         this._cellAlignment = value.toLowerCase();
     }
 
-    // Indicator to render images
-    renderImgs = false;
-
-    // Record Id
-    _recordId;
-
-    // SA Record Id
+    // Appointment record ID
     _saId;
 
+    // Record Id for which to retrieve Files
+    _parentRecordId;
+
     // Images
-    _images = [];
+    @track _images = [];
 
     // Cell alignment
     _cellAlignment = 'top';
@@ -60,6 +46,15 @@ export default class ImgGallery extends LightningElement {
     // Log info to console?
     _debug = true;
 
+    connectedCallback() {
+        // Determine the record Id which to get the Files for
+        if ( this.getFilesFromParent && this.recordId.substring( 0, 3 ) === '08p' ) {
+            this._saId = this.recordId;
+        } else {
+            this._parentRecordId = this.recordId;
+        }
+    }
+
     // Wire for Service Appointment
     @wire(graphql, { query: '$serviceAppointmentQuery', variables: '$serviceAppointmentQueryVars' } )
     serviceAppointmentQueryResults( result ) {
@@ -67,9 +62,8 @@ export default class ImgGallery extends LightningElement {
         const { data, error } = result;
         if ( data ) {
             this.log( `serviceAppointmentQueryResults data retrieved: ${ JSON.stringify( data ) }` );
-            let sas = data.uiapi.query.ServiceAppointment.edges.map( ( edge ) => edge.node );
-            this._recordId = sas?.ParentRecordId?.value;
-            this.log( `serviceAppointmentQueryResults found Parent Record: ${ this._recordId }` );
+            this._parentRecordId = data.uiapi.query.ServiceAppointment.edges[0].node.ParentRecordId.value;
+            this.log( `serviceAppointmentQueryResults found Parent Record: ${ this._parentRecordId }` );
         }
         if ( error ) {
             this.log( `serviceAppointmentQueryResults Error: ${ JSON.stringify( error ) }` );            
@@ -78,8 +72,8 @@ export default class ImgGallery extends LightningElement {
 
     // Getter for graphql query to control when the wire is triggered
     get serviceAppointmentQuery(){
-        if ( !this._saId ) return undefined;
-        return gql`
+        return this._saId === undefined ? undefined :
+        gql`
             query serviceAppointment( $recordId: ID = "" ) {
                 uiapi {
                     query {
@@ -130,8 +124,8 @@ export default class ImgGallery extends LightningElement {
 
     // Getter for graphql query to control when the wire is triggered
     get contentDocumentLinkQuery(){
-        if ( !this.recordId ) return undefined;
-        return gql`
+        return this._parentRecordId === undefined ? undefined :
+        gql`
             query contentDocumentLink( $linkedEntityId: ID = "" ) {
                 uiapi {
                     query {
@@ -155,7 +149,7 @@ export default class ImgGallery extends LightningElement {
     // Variable for the graphQL query
     get contentDocumentLinkQueryVars(){
         return {
-            linkedEntityId: this._recordId
+            linkedEntityId: this._parentRecordId
         };
     } 
 
@@ -167,13 +161,14 @@ export default class ImgGallery extends LightningElement {
         if ( data ) {
             this.log( `contentVersionQueryResults data retrieved: ${ JSON.stringify( data ) }` );
             const contVers = data.uiapi.query.ContentVersion.edges.map( ( edge ) => edge.node );
+            this.log( `contentVersionQueryResults contVers: ${ JSON.stringify( contVers ) }` );
             const imgs = [];
             const contDocIds = [];
             contVers.forEach( ( contVer ) => {
                 if ( !contDocIds.includes( contVer.ContentDocumentId.value ) ) {
                     imgs.push(
                         { 
-                            Id: contVer.id, 
+                            Id: contVer.Id, 
                             Title: contVer.Title.value,
                             Desc: contVer.Description.value,
                             FileType: contVer.FileType.value,
@@ -185,8 +180,7 @@ export default class ImgGallery extends LightningElement {
                 }            
             } );
             this._images = imgs;
-
-            this.renderImgs = true;
+            this.log( `contentVersionQueryResults _images: ${ JSON.stringify( this._images ) }` );
         }
         if ( error ) {
             this.log( `contentVersionQueryResults Error: ${ JSON.stringify( error ) }` );            
@@ -195,16 +189,18 @@ export default class ImgGallery extends LightningElement {
 
     // Getter for graphql query to control when the wire is triggered
     get contentVersionQuery(){
-        if ( !this._contDocIds ) return undefined;
-        return gql`
-            query contentVersion( $recordIds: [ID] = [""], $fileTypes: [String] = [""] ) {
+        return this._contDocIds === undefined ? undefined :
+        gql`
+            query contentVersion( $recordIds: [ID] = [""] ) {
                 uiapi {
                     query {
                         ContentVersion (
-                            where: { 
-                                ContentDocumentId: { in: $recordIds }, 
-                                FileType: { in: $fileTypes } 
-                            }
+                            where: {
+                                and: [
+                                    { ContentDocumentId: { in: $recordIds } },
+                                    { FileType: { in: [ "JPG", "JPEG", "PNG", "GIF" ] } }
+                                ]
+                            },
                             first: 2000,
                             orderBy: { CreatedDate: { order: DESC } }
                         ) {
@@ -228,10 +224,14 @@ export default class ImgGallery extends LightningElement {
     // Variable for the graphQL query
     get contentVersionQueryVars(){
         return {
-            recordIds: this._contDocIds,
-            fileTypes: ["JPG","JPEG","PNG","GIF"]
+            recordIds: this._contDocIds
         };
     }  
+
+    // Indicator to render images
+    get renderImgs() {
+        return this._images && this._images.length > 0;
+    }
 
     // Get thumbnail size syntax
     get imgThumbSize() {
